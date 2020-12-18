@@ -29,12 +29,12 @@ GATHERING_MAP = [
 class MOGatheringEnv(MOGridworld):
 
     def __init__(self,
-                 from_pixels=True,
-                 agent_start=[0,0],
-                 agent_color=(0.0, 0.0, 255.0),
-                 preference=np.array([-1,-5,+20,-20,-20,+0]),
-                 random_items=['p','o','p','o','p','o','q','q'],
-                 random_items_frame=2,
+                 from_pixels: bool = True,
+                 agent_start: list = [0,0],
+                 agent_color: tuple = (0.0, 0.0, 255.0),
+                 preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
+                 random_items: list = ['p','o','p','o','p','o','q','q'],
+                 random_items_frame: int = 2,
                  agents=[]):
 
         agent0 = HunterAgent(3, True, False, 0, (255.0, 0.0, 255.0), 5)
@@ -60,6 +60,6 @@ if __name__=="__main__":
     done = False
     my_grid.reset()
     while not done:
-        _, r, done, _ = my_grid.step(my_grid.action_space.sample())
+        obs, r, done, _ = my_grid.step(my_grid.action_space.sample())
         my_grid.render()
         time.sleep(0.5)

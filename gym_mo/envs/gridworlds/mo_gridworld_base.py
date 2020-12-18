@@ -1,3 +1,4 @@
+from typing import Tuple
 from gym_mo.envs.gridworlds import gridworld_base
 from gym_mo.envs.gridworlds.gridworld_base import Gridworld, RandomPlayer, Viewport
 
@@ -33,7 +34,7 @@ class MOGridworld(Gridworld):
                  random_items=[],
                  random_items_frame=0,
                  init_agents=[],
-                 agent_start=[0, 0],
+                 agent_start: gridworld_base.Position=[0, 0],
                  agent_color=(0.0, 0.0, 255.0),
                  encounter_other_agents=False,
                  max_steps=50,
@@ -56,7 +57,7 @@ class MOGridworld(Gridworld):
                                           encounter_other_agents=encounter_other_agents,
                                           max_steps=max_steps)
 
-    def step(self, action):
+    def step(self, action: int) -> Tuple[np.ndarray, np.ndarray, bool, float]:
 
         self.step_count += 1
 
@@ -106,7 +107,7 @@ class MOGridworld(Gridworld):
 
         return idxs
 
-    def is_done(self, include_agents=True, agent_preferences=[]):
+    def is_done(self, include_agents: bool = True, agent_preferences=[]) -> bool:
         if self.step_count > self.max_steps:
             return True
 
@@ -124,7 +125,7 @@ class MOGridworld(Gridworld):
 
         return True
 
-    def reset(self, preference=None):
+    def reset(self, preference: np.ndarray = None) -> np.ndarray:
         if preference is not None:
             self.preference = preference
         self.load_map(self.map, self.object_mapping)

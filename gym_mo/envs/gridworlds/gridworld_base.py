@@ -2,10 +2,14 @@ import numpy as np
 
 import time
 import copy
+from typing import List, Tuple
 
 from gym import Env, spaces
 from gym.utils import seeding
 from gym.envs.classic_control import rendering
+
+
+Position = List[int, int]
 
 class GridObject():
     """Object that can be placed in a GridWorld.
@@ -85,7 +89,7 @@ class PixelRLAgent(GridAgent):
 
 class HunterAgent(GridAgent):
 
-    def __init__(self, goal_object_idx, is_walkable, is_consumed, reward_on_encounter, color, idx):
+    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Tuple[int, int, int], idx: int):
         self.goal_object_idx = goal_object_idx
         self.goal_position = None
         self.is_done = False
@@ -229,7 +233,7 @@ class Gridworld(Env):
                  random_items=[],
                  random_items_frame=0,
                  init_agents=[],
-                 agent_start=[0, 0],
+                 agent_start: Position = [0, 0],
                  max_steps=50,
                  agent_color=(0.0, 0.0, 255.0),
                  encounter_other_agents=False):
@@ -314,7 +318,7 @@ class Gridworld(Env):
         obs = obs.flatten()
         return obs
 
-    def create_image_observation(self, include_agent=True):
+    def create_image_observation(self, include_agent: bool = True):
         obs = np.zeros(shape=(self.rows * self.inflation, self.columns * self.inflation, 3), dtype='uint8')
 
         # Add objects
@@ -378,7 +382,7 @@ class Gridworld(Env):
                 found_valid_spot = True
                 self.grid[self.rows - 1 - row, column] = object_mapping[item]
 
-    def render(self, mode='human'):
+    def render(self, mode: str = 'human'):
         if self.viewer == None:
             self.viewer = rendering.Viewer(self.viewport.width, self.viewport.height)
             self.viewer.set_bounds(0, self.viewport.width/self.SCALE_W, 0, self.viewport.height/self.SCALE_H)
@@ -424,7 +428,7 @@ class Gridworld(Env):
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 
-    def get_new_pos_from_action(self, action, old_pos):
+    def get_new_pos_from_action(self, action: int, old_pos: Position) -> Position:
         new_pos = old_pos.copy()
         if action == 1:
             new_pos[0] = new_pos[0] - 1
@@ -436,7 +440,7 @@ class Gridworld(Env):
             new_pos[1] = new_pos[1] + 1
         return new_pos
 
-    def step(self, action):
+    def step(self, action: int):
 
         self.step_count += 1
 
