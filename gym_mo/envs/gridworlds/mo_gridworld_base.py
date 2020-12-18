@@ -2,13 +2,9 @@ from typing import Tuple
 from gym_mo.envs.gridworlds import gridworld_base
 from gym_mo.envs.gridworlds.gridworld_base import Gridworld, RandomPlayer, Viewport
 
-import gym
-from gym import spaces
-
 import numpy as np
 import copy
 import time
-from collections import deque
 
 class MOEnvDummy():
 
@@ -29,17 +25,17 @@ class MOGridworld(Gridworld):
                  map,
                  object_mapping,
                  viewport=Viewport(),
-                 from_pixels=True,
+                 from_pixels: bool = True,
                  inflation=1,
                  random_items=[],
                  random_items_frame=0,
                  init_agents=[],
-                 agent_start: gridworld_base.Position=[0, 0],
-                 agent_color=(0.0, 0.0, 255.0),
+                 agent_start: gridworld_base.Position = [0, 0],
+                 agent_color: gridworld_base.Color = (0.0, 0.0, 255.0),
                  encounter_other_agents=False,
-                 max_steps=50,
-                 preference=np.array([-1,-5,+2,-2,-1]),
-                 include_agents=True,
+                 max_steps: int = 50,
+                 preference: np.ndarray = np.array([-1,-5,+2,-2,-1]),
+                 include_agents: bool = True,
                  agent_preferences=[]):
         self.preference = preference
         self.include_agents = include_agents

@@ -10,13 +10,14 @@ from gym.envs.classic_control import rendering
 
 
 Position = List[int, int]
+Color = Tuple[float, float, float]
 
 class GridObject():
     """Object that can be placed in a GridWorld.
 
     """
 
-    def __init__(self, is_walkable, is_consumed, reward_on_encounter, color, idx=None):
+    def __init__(self, is_walkable: bool, is_consumed: bool, reward_on_encounter, color: Color, idx: int = None):
         """Initialize GridObject.
 
         Keyword arguments:
@@ -37,7 +38,7 @@ class GridAgent(GridObject):
 
     """
 
-    def __init__(self, is_walkable, is_consumed, reward_on_encounter, color, idx=None):
+    def __init__(self, is_walkable: bool, is_consumed: bool, reward_on_encounter, color: Color, idx=None):
         """Initialize GridObject.
 
         Keyword arguments:
@@ -52,17 +53,17 @@ class GridAgent(GridObject):
     def reset_reward(self):
         self.reward = 0
 
-    def set_position(self, position):
+    def set_position(self, position: Position) -> None:
         self.position = position
 
     def reset(self):
         pass
 
-    def step(self, env):
+    def step(self, env: Gridworld) -> None:
         pass
 
 class PixelRLAgent(GridAgent):
-    def __init__(self, act, is_walkable, is_consumed, reward_on_encounter, color, idx):
+    def __init__(self, act, is_walkable, is_consumed, reward_on_encounter, color: Color, idx):
         self.act = act
         super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
 
@@ -89,13 +90,13 @@ class PixelRLAgent(GridAgent):
 
 class HunterAgent(GridAgent):
 
-    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Tuple[int, int, int], idx: int):
+    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Color, idx: int):
         self.goal_object_idx = goal_object_idx
         self.goal_position = None
         self.is_done = False
         super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
 
-    def step(self, env):
+    def step(self, env: Gridworld) -> None:
         if self.is_done: return
 
         if self.goal_position is None:
@@ -131,7 +132,7 @@ class HunterAgent(GridAgent):
         if shortest_distance is None:
             self.is_done = True
 
-    def grid_distance(self, pos1, pos2):
+    def grid_distance(self, pos1: Position, pos2: Position):
         return (abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]))
 
     def reset(self):
@@ -234,8 +235,8 @@ class Gridworld(Env):
                  random_items_frame=0,
                  init_agents=[],
                  agent_start: Position = [0, 0],
-                 max_steps=50,
-                 agent_color=(0.0, 0.0, 255.0),
+                 max_steps: int = 50,
+                 agent_color: Color = (0.0, 0.0, 255.0),
                  encounter_other_agents=False):
         self.map = map
         self.rows = len(self.map)
@@ -518,7 +519,7 @@ class Gridworld(Env):
 
         return reward
 
-    def render_object(self, x, y, object_color):
+    def render_object(self, x, y, object_color: Color):
         x1 = x + self.viewport.object_delta
         x2 = x - self.viewport.object_delta + 1
         y1 = y + self.viewport.object_delta

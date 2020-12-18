@@ -1,8 +1,7 @@
 import time
 
-from gym_mo.envs.gridworlds import gridworld_base
 from gym_mo.envs.gridworlds.mo_gridworld_base import MOGridworld
-from gym_mo.envs.gridworlds.gridworld_base import GridObject, HunterAgent
+from gym_mo.envs.gridworlds.gridworld_base import GridObject, HunterAgent, Position
 
 import numpy as np
 
@@ -30,7 +29,7 @@ class MOGatheringEnv(MOGridworld):
 
     def __init__(self,
                  from_pixels: bool = True,
-                 agent_start: list = [0,0],
+                 agent_start: Position = [0,0],
                  agent_color: tuple = (0.0, 0.0, 255.0),
                  preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
                  random_items: list = ['p','o','p','o','p','o','q','q'],
