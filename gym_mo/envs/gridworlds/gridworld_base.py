@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from gym import Env, spaces
 from gym.utils import seeding
-from gym.envs.classic_control import rendering
+#from gym.envs.classic_control import rendering
 
 
 Position = List[int, int]
@@ -382,7 +382,7 @@ class Gridworld(Env):
             if self.grid[self.rows - 1 - row, column] == None:
                 found_valid_spot = True
                 self.grid[self.rows - 1 - row, column] = object_mapping[item]
-
+    '''
     def render(self, mode: str = 'human'):
         if self.viewer == None:
             self.viewer = rendering.Viewer(self.viewport.width, self.viewport.height)
@@ -428,7 +428,7 @@ class Gridworld(Env):
         self.render_object(self.agent_pos[0] + 1, self.agent_pos[1] + 1, (0.0, 0.0, 255.0))
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
-
+    '''
     def get_new_pos_from_action(self, action: int, old_pos: Position) -> Position:
         new_pos = old_pos.copy()
         if action == 1:
@@ -518,14 +518,14 @@ class Gridworld(Env):
                         self.agents.remove(agent)
 
         return reward
-
+    '''
     def render_object(self, x, y, object_color: Color):
         x1 = x + self.viewport.object_delta
         x2 = x - self.viewport.object_delta + 1
         y1 = y + self.viewport.object_delta
         y2 = y - self.viewport.object_delta + 1 
         self.viewer.draw_polygon( [(x1, y1), (x2, y1), (x2, y2), (x1, y2),], color=object_color )
-
+    '''
     def toggle_grid(self):
         self.render_grid = not self.render_grid
 
@@ -544,7 +544,7 @@ class Gridworld(Env):
         else:
             obs = self.create_discrete_observation()
         return obs
-
+'''
 class RandomPlayer:
 
     def __init__(self, env, num_episodes):
@@ -572,7 +572,7 @@ class RandomPlayer:
     def step_env(self):
         _, r, done, _ = self.env.step(self.env.action_space.sample())
         return (r, done)
-
+'''
 TEST_MAP = [
 ' o                  ',
 '       o       o    ',
