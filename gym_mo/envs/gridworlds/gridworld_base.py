@@ -9,7 +9,7 @@ from gym.utils import seeding
 #from gym.envs.classic_control import rendering
 
 
-Position = List[int, int]
+Position = List[int]
 Color = Tuple[float, float, float]
 
 class GridObject():
