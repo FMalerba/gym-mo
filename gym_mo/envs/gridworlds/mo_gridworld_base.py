@@ -1,6 +1,6 @@
 from typing import Tuple
 from gym_mo.envs.gridworlds import gridworld_base
-from gym_mo.envs.gridworlds.gridworld_base import Gridworld, RandomPlayer, Viewport
+from gym_mo.envs.gridworlds.gridworld_base import Gridworld, Viewport #,  RandomPlayer
 
 import numpy as np
 import copy
@@ -137,7 +137,7 @@ class MOGridworld(Gridworld):
         else:
             obs = self.create_discrete_observation()
         return obs
-
+'''
 class MORandomPlayer(RandomPlayer):
 
     def __init__(self, env, num_episodes):
@@ -146,7 +146,7 @@ class MORandomPlayer(RandomPlayer):
     def step_env(self):
         obs, reward, done, info = self.env.step(self.env.action_space.sample())
         return (obs, reward, done, info)
-
+'''
 if __name__=="__main__":
     my_grid = MOGridworld(gridworld_base.TEST_MAP, 
                           gridworld_base.TEST_MAPPING,

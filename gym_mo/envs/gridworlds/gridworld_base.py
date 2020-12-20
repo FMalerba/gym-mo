@@ -33,182 +33,6 @@ class GridObject():
         self.color = color
         self.idx = idx
 
-class GridAgent(GridObject):
-    """Autonomous agent that can act in a GridWorld.
-
-    """
-
-    def __init__(self, is_walkable: bool, is_consumed: bool, reward_on_encounter, color: Color, idx=None):
-        """Initialize GridObject.
-
-        Keyword arguments:
-        color                 -- the color of the agent
-        idx                   -- idx of the agent
-        """
-        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
-        self.position = None
-        self.reward = 0
-        self.observation_color = (0.0, 0.0, 255.0)
-
-    def reset_reward(self):
-        self.reward = 0
-
-    def set_position(self, position: Position) -> None:
-        self.position = position
-
-    def reset(self):
-        pass
-
-    def step(self, env: Gridworld) -> None:
-        pass
-
-class PixelRLAgent(GridAgent):
-    def __init__(self, act, is_walkable, is_consumed, reward_on_encounter, color: Color, idx):
-        self.act = act
-        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
-
-    def step(self, env):
-        obs = env.create_image_observation(include_agent=False)
-        a = self.act(obs[None])[0]
-
-        new_pos = self.position.copy()
-        if a == 1:
-            new_pos[0] = new_pos[0] - 1
-        elif a == 2:
-            new_pos[0] = new_pos[0] + 1
-        elif a == 3:
-            new_pos[1] = new_pos[1] - 1
-        elif a == 4:
-            new_pos[1] = new_pos[1] + 1
-
-        if env.is_walkable(new_pos[0], new_pos[1]):
-            self.position = new_pos
-            self.reward += env.encounter_object(new_pos[0], new_pos[1], False)
-
-    def reset(self):
-        self.reward = 0
-
-class HunterAgent(GridAgent):
-
-    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Color, idx: int):
-        self.goal_object_idx = goal_object_idx
-        self.goal_position = None
-        self.is_done = False
-        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
-
-    def step(self, env: Gridworld) -> None:
-        if self.is_done: return
-
-        if self.goal_position is None:
-            self.set_goal_position(env)
-        elif (env.grid[self.goal_position[1], self.goal_position[0]] is None) or (env.grid[self.goal_position[1], self.goal_position[0]].idx != self.goal_object_idx):
-            self.set_goal_position(env)
-
-        new_pos = self.position.copy()
-        if new_pos[0] - self.goal_position[0] < 0:
-            new_pos[0] = new_pos[0] + 1
-        elif new_pos[0] - self.goal_position[0] > 0:
-            new_pos[0] = new_pos[0] - 1
-        elif new_pos[1] - self.goal_position[1] < 0:
-            new_pos[1] = new_pos[1] + 1
-        elif new_pos[1] - self.goal_position[1] > 0:
-            new_pos[1] = new_pos[1] - 1
-
-        if env.is_walkable(new_pos[0], new_pos[1]):
-            self.position = new_pos
-            self.reward += env.encounter_object(new_pos[0], new_pos[1], False)
-
-    def set_goal_position(self, env):
-        self.goal_position = self.position.copy()
-        shortest_distance = None
-        for row in range(env.grid.shape[0]):
-            for column in range(env.grid.shape[1]):
-                if ((env.grid[row, column] is None) or (env.grid[row, column].idx != self.goal_object_idx)): continue
-                object_distance = self.grid_distance([column, row], self.position)
-                if ((shortest_distance is None) or (object_distance < shortest_distance)):
-                    shortest_distance = object_distance
-                    self.goal_position = [column, row]
-
-        if shortest_distance is None:
-            self.is_done = True
-
-    def grid_distance(self, pos1: Position, pos2: Position):
-        return (abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]))
-
-    def reset(self):
-        self.reward = 0
-        self.goal_position = None
-        self.is_done = False
-
-class ScrollerAgent(GridAgent):
-
-    GOING_LEFT  = [-1,0]
-    GOING_RIGHT = [+1,0]
-    GOING_DOWN  = [0,-1]
-    GOING_UP    = [0,+1]
-
-    def __init__(self, 
-                 random_walk, 
-                 direction, 
-                 step_delay=0, 
-                 step_delay_init=[0,0],
-                 random_init=None,
-                 is_walkable=True, 
-                 is_consumed=False, 
-                 reward_on_encounter=0, 
-                 color=(255.0, 0.0, 0.0), 
-                 idx=0):
-        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
-        self.random_walk = random_walk
-        self.direction = direction.copy()
-        self.step_delay = step_delay
-        self.step_delay_init = step_delay_init
-        self.stationary_steps = 0
-        self.random_init = random_init
-
-    def step(self, env):
-        if self.position is None:
-            return
-
-        if self.stationary_steps < self.step_delay:
-            self.stationary_steps += 1
-            return
-
-        self.stationary_steps = 0
-
-        new_pos = [self.position[0] + self.direction[0], self.position[1] + self.direction[1]]
-
-        if env.is_walkable(new_pos[0], new_pos[1]):
-            self.position = new_pos
-        else:
-            self.set_new_direction()
-
-        if self.random_walk and (np.random.randint(100) < 10):
-            self.set_new_direction()
-
-    def set_new_direction(self):
-        if self.random_walk:
-            change = np.random.randint(4)
-            if change == 0:
-                self.direction = self.GOING_LEFT
-            elif change == 1:
-                self.direction = self.GOING_RIGHT
-            elif change == 2:
-                self.direction = self.GOING_DOWN
-            else:
-                self.direction = self.GOING_UP
-        else:
-            # Bounce
-            self.direction[0] = self.direction[0] * -1
-            self.direction[1] = self.direction[1] * -1
-
-    def reset(self):
-        if self.random_init is not None:
-            self.position[0] = np.random.randint(self.random_init[0][0], self.random_init[0][1] + 1)
-            self.position[1] = np.random.randint(self.random_init[1][0], self.random_init[1][1] + 1)
-            if (np.random.randint(100) < 10):
-                self.set_new_direction()
-        self.step_delay = np.random.randint(self.step_delay_init[0], self.step_delay_init[1] + 1)
 
 class Viewport:
     """Class for viewport settings.
@@ -544,6 +368,184 @@ class Gridworld(Env):
         else:
             obs = self.create_discrete_observation()
         return obs
+
+class GridAgent(GridObject):
+    """Autonomous agent that can act in a GridWorld.
+
+    """
+
+    def __init__(self, is_walkable: bool, is_consumed: bool, reward_on_encounter, color: Color, idx=None):
+        """Initialize GridObject.
+
+        Keyword arguments:
+        color                 -- the color of the agent
+        idx                   -- idx of the agent
+        """
+        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
+        self.position = None
+        self.reward = 0
+        self.observation_color = (0.0, 0.0, 255.0)
+
+    def reset_reward(self):
+        self.reward = 0
+
+    def set_position(self, position: Position) -> None:
+        self.position = position
+
+    def reset(self):
+        pass
+
+    def step(self, env: Gridworld) -> None:
+        pass
+
+class PixelRLAgent(GridAgent):
+    def __init__(self, act, is_walkable, is_consumed, reward_on_encounter, color: Color, idx):
+        self.act = act
+        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
+
+    def step(self, env):
+        obs = env.create_image_observation(include_agent=False)
+        a = self.act(obs[None])[0]
+
+        new_pos = self.position.copy()
+        if a == 1:
+            new_pos[0] = new_pos[0] - 1
+        elif a == 2:
+            new_pos[0] = new_pos[0] + 1
+        elif a == 3:
+            new_pos[1] = new_pos[1] - 1
+        elif a == 4:
+            new_pos[1] = new_pos[1] + 1
+
+        if env.is_walkable(new_pos[0], new_pos[1]):
+            self.position = new_pos
+            self.reward += env.encounter_object(new_pos[0], new_pos[1], False)
+
+    def reset(self):
+        self.reward = 0
+
+class HunterAgent(GridAgent):
+
+    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Color, idx: int):
+        self.goal_object_idx = goal_object_idx
+        self.goal_position = None
+        self.is_done = False
+        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
+
+    def step(self, env: Gridworld) -> None:
+        if self.is_done: return
+
+        if self.goal_position is None:
+            self.set_goal_position(env)
+        elif (env.grid[self.goal_position[1], self.goal_position[0]] is None) or (env.grid[self.goal_position[1], self.goal_position[0]].idx != self.goal_object_idx):
+            self.set_goal_position(env)
+
+        new_pos = self.position.copy()
+        if new_pos[0] - self.goal_position[0] < 0:
+            new_pos[0] = new_pos[0] + 1
+        elif new_pos[0] - self.goal_position[0] > 0:
+            new_pos[0] = new_pos[0] - 1
+        elif new_pos[1] - self.goal_position[1] < 0:
+            new_pos[1] = new_pos[1] + 1
+        elif new_pos[1] - self.goal_position[1] > 0:
+            new_pos[1] = new_pos[1] - 1
+
+        if env.is_walkable(new_pos[0], new_pos[1]):
+            self.position = new_pos
+            self.reward += env.encounter_object(new_pos[0], new_pos[1], False)
+
+    def set_goal_position(self, env):
+        self.goal_position = self.position.copy()
+        shortest_distance = None
+        for row in range(env.grid.shape[0]):
+            for column in range(env.grid.shape[1]):
+                if ((env.grid[row, column] is None) or (env.grid[row, column].idx != self.goal_object_idx)): continue
+                object_distance = self.grid_distance([column, row], self.position)
+                if ((shortest_distance is None) or (object_distance < shortest_distance)):
+                    shortest_distance = object_distance
+                    self.goal_position = [column, row]
+
+        if shortest_distance is None:
+            self.is_done = True
+
+    def grid_distance(self, pos1: Position, pos2: Position):
+        return (abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1]))
+
+    def reset(self):
+        self.reward = 0
+        self.goal_position = None
+        self.is_done = False
+
+class ScrollerAgent(GridAgent):
+
+    GOING_LEFT  = [-1,0]
+    GOING_RIGHT = [+1,0]
+    GOING_DOWN  = [0,-1]
+    GOING_UP    = [0,+1]
+
+    def __init__(self, 
+                 random_walk, 
+                 direction, 
+                 step_delay=0, 
+                 step_delay_init=[0,0],
+                 random_init=None,
+                 is_walkable=True, 
+                 is_consumed=False, 
+                 reward_on_encounter=0, 
+                 color=(255.0, 0.0, 0.0), 
+                 idx=0):
+        super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
+        self.random_walk = random_walk
+        self.direction = direction.copy()
+        self.step_delay = step_delay
+        self.step_delay_init = step_delay_init
+        self.stationary_steps = 0
+        self.random_init = random_init
+
+    def step(self, env):
+        if self.position is None:
+            return
+
+        if self.stationary_steps < self.step_delay:
+            self.stationary_steps += 1
+            return
+
+        self.stationary_steps = 0
+
+        new_pos = [self.position[0] + self.direction[0], self.position[1] + self.direction[1]]
+
+        if env.is_walkable(new_pos[0], new_pos[1]):
+            self.position = new_pos
+        else:
+            self.set_new_direction()
+
+        if self.random_walk and (np.random.randint(100) < 10):
+            self.set_new_direction()
+
+    def set_new_direction(self):
+        if self.random_walk:
+            change = np.random.randint(4)
+            if change == 0:
+                self.direction = self.GOING_LEFT
+            elif change == 1:
+                self.direction = self.GOING_RIGHT
+            elif change == 2:
+                self.direction = self.GOING_DOWN
+            else:
+                self.direction = self.GOING_UP
+        else:
+            # Bounce
+            self.direction[0] = self.direction[0] * -1
+            self.direction[1] = self.direction[1] * -1
+
+    def reset(self):
+        if self.random_init is not None:
+            self.position[0] = np.random.randint(self.random_init[0][0], self.random_init[0][1] + 1)
+            self.position[1] = np.random.randint(self.random_init[1][0], self.random_init[1][1] + 1)
+            if (np.random.randint(100) < 10):
+                self.set_new_direction()
+        self.step_delay = np.random.randint(self.step_delay_init[0], self.step_delay_init[1] + 1)
+
 '''
 class RandomPlayer:
 
