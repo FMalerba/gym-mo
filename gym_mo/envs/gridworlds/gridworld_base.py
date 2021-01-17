@@ -57,7 +57,7 @@ class Gridworld(Env):
                  inflation=1,
                  random_items=[],
                  random_items_frame=0,
-                 init_agents=[],
+                 init_agents = [],
                  agent_start: Position = [0, 0],
                  max_steps: int = 50,
                  agent_color: Color = (0.0, 0.0, 255.0),
@@ -67,8 +67,8 @@ class Gridworld(Env):
         self.columns = len(self.map[0])
         self.random_items = random_items
         self.random_items_frame = random_items_frame
-        self.init_agents=init_agents
-        self.agents = []
+        self.init_agents: List[GridAgent] = init_agents
+        self.agents: List[GridAgent] = []
         self.agent_start = agent_start
         self.object_mapping = object_mapping
         self.max_steps = max_steps
