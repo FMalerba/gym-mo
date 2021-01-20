@@ -7,9 +7,9 @@ import numpy as np
 
 GATHERING_MAPPING = {
     '#': GridObject(True, False, 0, (255.0, 255.0, 255.0), 1),
-    'o': GridObject(True, True, 0, (0.0, 255.0, 0.0), 2),
-    'p': GridObject(True, True, 1, (255.0, 0.0, 0.0), 3),
-    'q': GridObject(True, True, 0, (255.0, 255.0, 0.0), 4),
+    'green': GridObject(True, True, 0, (0.0, 255.0, 0.0), 2),
+    'red': GridObject(True, True, 1, (255.0, 0.0, 0.0), 3),
+    'yellow': GridObject(True, True, 0, (255.0, 255.0, 0.0), 4),
     ' ': None
 }
 
@@ -32,7 +32,7 @@ class MOGatheringEnv(MOGridworld):
                  agent_start: Position = [0,0],
                  agent_color: tuple = (0.0, 0.0, 255.0),
                  preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
-                 random_items: list = ['p','o','p','o','p','o','q','q'],
+                 random_items: list = ['red','green','red','green','red','green','yellow','yellow'],
                  random_items_frame: int = 2,
                  agents=[]):
 
