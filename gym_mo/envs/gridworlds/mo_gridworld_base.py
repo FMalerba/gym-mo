@@ -116,7 +116,7 @@ class MOGridworld(Gridworld):
 
         if include_agents:
             for agent in self.agents:
-                if self.preference[agent.idx] > 0:
+                if (self.preference[agent.idx] > 0) and (not agent.is_done):
                     return False
 
         return True
