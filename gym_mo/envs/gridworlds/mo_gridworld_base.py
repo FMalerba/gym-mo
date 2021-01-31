@@ -39,7 +39,6 @@ class MOGridworld(Gridworld):
         self.preference = preference
         self.include_agents = include_agents
         self.agent_preferences = agent_preferences
-        self.agents = init_agents
         super(MOGridworld, self).__init__(map=map,
                                           object_mapping=object_mapping,
                                           viewport=viewport,
@@ -52,6 +51,7 @@ class MOGridworld(Gridworld):
                                           agent_color=agent_color,
                                           encounter_other_agents=encounter_other_agents,
                                           max_steps=max_steps)
+        self.agents = init_agents
 
     def step(self, action: int) -> Tuple[np.ndarray, np.ndarray, bool, float]:
 
