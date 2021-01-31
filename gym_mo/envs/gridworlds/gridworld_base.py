@@ -1,6 +1,6 @@
 import numpy as np
 
-import time
+import gin
 import copy
 from typing import List, Tuple
 
@@ -424,10 +424,13 @@ class PixelRLAgent(GridAgent):
     def reset(self):
         self.reward = 0
 
+@gin.configurable()
 class HunterAgent(GridAgent):
 
-    def __init__(self, goal_object_idx: int, is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Color, idx: int):
+    def __init__(self, goal_object_idx: int, initial_position: Position,
+                 is_walkable: bool, is_consumed: bool, reward_on_encounter: int, color: Color, idx: int):
         self.goal_object_idx = goal_object_idx
+        self._initial_position  = initial_position
         self.goal_position = None
         self.is_done = False
         super().__init__(is_walkable, is_consumed, reward_on_encounter, color, idx)
@@ -473,6 +476,7 @@ class HunterAgent(GridAgent):
 
     def reset(self):
         self.reward = 0
+        self.position = self._initial_position
         self.goal_position = None
         self.is_done = False
 

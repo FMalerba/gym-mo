@@ -1,10 +1,10 @@
 from typing import Tuple
 from gym_mo.envs.gridworlds import gridworld_base
-from gym_mo.envs.gridworlds.gridworld_base import Gridworld, Viewport #,  RandomPlayer
+from gym_mo.envs.gridworlds.gridworld_base import Gridworld, Viewport
 
 import numpy as np
-import copy
 import time
+import gin
 
 class MOEnvDummy():
 
@@ -16,10 +16,9 @@ class MOEnvDummy():
         obs = np.zeros(shape=self.observation_space.shape)
         return obs
 
+@gin.configurable()
 class MOGridworld(Gridworld):
-    """Base class for multi objective gridworld environments.
-
-    """
+    """Base class for multi objective gridworld environments."""
 
     def __init__(self,
                  map,
@@ -40,6 +39,7 @@ class MOGridworld(Gridworld):
         self.preference = preference
         self.include_agents = include_agents
         self.agent_preferences = agent_preferences
+        self.agents = init_agents
         super(MOGridworld, self).__init__(map=map,
                                           object_mapping=object_mapping,
                                           viewport=viewport,
@@ -126,9 +126,6 @@ class MOGridworld(Gridworld):
             self.preference = preference
         self.load_map(self.map, self.object_mapping)
         self.agent_pos = self.agent_start
-        self.agents.clear()
-        for agent in self.init_agents:
-            self.agents.append(copy.deepcopy(agent))
         for agent in self.agents:
             agent.reset()
         self.step_count = 0
@@ -137,16 +134,9 @@ class MOGridworld(Gridworld):
         else:
             obs = self.create_discrete_observation()
         return obs
-'''
-class MORandomPlayer(RandomPlayer):
 
-    def __init__(self, env, num_episodes):
-        super().__init__(env,num_episodes)
 
-    def step_env(self):
-        obs, reward, done, info = self.env.step(self.env.action_space.sample())
-        return (obs, reward, done, info)
-'''
+
 if __name__=="__main__":
     my_grid = MOGridworld(gridworld_base.TEST_MAP, 
                           gridworld_base.TEST_MAPPING,
