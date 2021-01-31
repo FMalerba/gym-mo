@@ -33,7 +33,7 @@ class MOGridworld(Gridworld):
                  agent_color: gridworld_base.Color = (0.0, 0.0, 255.0),
                  encounter_other_agents=False,
                  max_steps: int = 50,
-                 preference: np.ndarray = np.array([-1,-5,+2,-2,-1]),
+                 preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
                  include_agents: bool = True,
                  agent_preferences=[]):
         self.preference = preference
