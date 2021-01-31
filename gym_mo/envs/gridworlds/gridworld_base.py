@@ -12,6 +12,7 @@ from gym.utils import seeding
 Position = List[int]
 Color = Tuple[float, float, float]
 
+@gin.configurable()
 class GridObject():
     """Object that can be placed in a GridWorld.
 
