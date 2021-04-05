@@ -32,11 +32,7 @@ class MOGridworld(Gridworld):
                  agent_start: gridworld_base.Position = [0, 0],
                  agent_color: gridworld_base.Color = (0.0, 0.0, 255.0),
                  encounter_other_agents=False,
-                 max_steps: int = 50,
-                 preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
-                 agent_preferences=[]):
-        self.preference = preference
-        self.agent_preferences = agent_preferences
+                 max_steps: int = 50):
         super(MOGridworld, self).__init__(map=map,
                                           object_mapping=object_mapping,
                                           viewport=viewport,
@@ -99,9 +95,7 @@ class MOGridworld(Gridworld):
 
         return idxs
 
-    def reset(self, preference: np.ndarray = None) -> np.ndarray:
-        if preference is not None:
-            self.preference = preference
+    def reset(self) -> np.ndarray:
         self.load_map(self.map, self.object_mapping)
         self.agent_pos = self.agent_start
         for agent in self.agents:
@@ -117,8 +111,7 @@ class MOGridworld(Gridworld):
 
 if __name__=="__main__":
     my_grid = MOGridworld(gridworld_base.TEST_MAP, 
-                          gridworld_base.TEST_MAPPING,
-                          preference=np.array([-1,-5,+2,-2,-1, -1]))
+                          gridworld_base.TEST_MAPPING)
 
     done = False
     my_grid.reset()
