@@ -34,10 +34,8 @@ class MOGridworld(Gridworld):
                  encounter_other_agents=False,
                  max_steps: int = 50,
                  preference: np.ndarray = np.array([-1,-5,+20,-20,-20,+0]),
-                 include_agents: bool = True,
                  agent_preferences=[]):
         self.preference = preference
-        self.include_agents = include_agents
         self.agent_preferences = agent_preferences
         super(MOGridworld, self).__init__(map=map,
                                           object_mapping=object_mapping,
@@ -83,9 +81,7 @@ class MOGridworld(Gridworld):
         for idx in idxs:
              reward[idx] += 1
 
-        done = self.is_done(self.include_agents, self.agent_preferences)
-
-        return (obs, reward, done, agent_rewards)
+        return (obs, reward, agent_rewards)
 
     def encounter_object_idx(self, column, row, encounter_agents=True):
         idxs = []
@@ -102,24 +98,6 @@ class MOGridworld(Gridworld):
                         self.agents.remove(agent)
 
         return idxs
-
-    def is_done(self, include_agents: bool = True, agent_preferences=[]) -> bool:
-        if self.step_count > self.max_steps:
-            return True
-
-        for row in range(self.grid.shape[0]):
-            for column in range(self.grid.shape[1]):
-                if self.grid[row, column] is not None and self.preference[self.grid[row, column].idx] > 0:
-                    return False
-                if self.grid[row, column] is not None and self.grid[row, column].idx in agent_preferences:
-                    return False
-
-        if include_agents:
-            for agent in self.agents:
-                if (self.preference[agent.idx] > 0) and (not agent.is_done):
-                    return False
-
-        return True
 
     def reset(self, preference: np.ndarray = None) -> np.ndarray:
         if preference is not None:
